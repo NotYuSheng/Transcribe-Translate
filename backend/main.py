@@ -3,7 +3,8 @@ import whisper
 
 app = FastAPI()
 
-model = whisper.load_model("base")
+# Load the large-v3 Whisper model
+model = whisper.load_model("large-v3")
 
 @app.post("/transcribe/")
 async def transcribe(file: UploadFile = File(...)):
