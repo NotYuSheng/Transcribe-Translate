@@ -1,1 +1,1 @@
-# Local-Whisper
+# Transcribe-Translate
