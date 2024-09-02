@@ -18,9 +18,14 @@ app.add_middleware(
 model = whisper.load_model("base")
 
 def save_file(file: UploadFile) -> str:
-    filename = f"temp.{file.filename.split('.')[-1]}"
+    # Extract the file extension from the uploaded file's original filename
+    ext = file.filename.split('.')[-1]
+    # Construct a filename with the correct extension
+    filename = f"temp.{ext}"
+    # Save the uploaded file to the local file system
     with open(filename, "wb") as f:
         f.write(file.file.read())
+    # Return the filename for further processing
     return filename
 
 def extract_audio(video_file: str) -> str:
