@@ -2,7 +2,6 @@ from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 import whisper
 import os
-from typing import Optional
 
 app = FastAPI()
 
@@ -35,22 +34,31 @@ def extract_audio(video_file: str) -> str:
     return audio_file
 
 @app.post("/transcribe/")
-async def transcribe(file: UploadFile = File(...), language: Optional[str] = Form(None)):
-    filename = save_file(file)
-    if filename.endswith(('.mp4', '.mkv', '.avi')):
-        audio_file = extract_audio(filename)
-    else:
-        audio_file = filename
-    result = model.transcribe(audio_file, language=language)
-    os.remove(filename)
-    os.remove(audio_file)
-    return {"transcription": result["text"]}
+async def transcribe(
+    file: UploadFile = File(...),
+    model_name: str = Form("tiny"),
+    language: str = Form(None)
+):
+    try:
+        model = models.get(model_name, models["tiny"])
+        filename = save_file(file)
+        if filename.endswith(('.mp4', '.mkv', '.avi')):
+            audio_file = extract_audio(filename)
+        else:
+            audio_file = filename
+        result = model.transcribe(audio_file, language=language)
+        os.remove(filename)
+        os.remove(audio_file)
+        return {"transcription": result["text"]}
+    except Exception as e:
+        print(f"Error occurred: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @app.post("/translate/")
 async def translate(
     file: UploadFile = File(...),
     model_name: str = Form("tiny"),
-    source_language: Optional[str] = Form(None),
+    source_language: str = Form(None),
     target_language: str = Form("en")
 ):
     try:
