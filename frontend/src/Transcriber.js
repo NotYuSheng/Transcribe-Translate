@@ -25,8 +25,12 @@ const Transcriber = () => {
         formData.append("file", file);
         formData.append("language", inputLanguage);
 
-        const response = await axios.post("http://backend:8000/transcribe/", formData);
-        setTranscription(response.data.transcription);
+        try {
+            const response = await axios.post("http://backend:8000/transcribe/", formData);
+            setTranscription(response.data.transcription);
+        } catch (error) {
+            console.error("There was an error!", error);
+        }
     };
 
     const handleTranslate = async () => {
