@@ -13,10 +13,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-models = {
-    "tiny": whisper.load_model("tiny"),
-    "large-v3": whisper.load_model("large-v3")
-}
+# Load the model on GPU if available
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model = whisper.load_model("base", device=device)
 
 def save_file(file: UploadFile) -> str:
     ext = file.filename.split('.')[-1]
@@ -27,29 +26,30 @@ def save_file(file: UploadFile) -> str:
 
 def extract_audio(video_file: str) -> str:
     audio_file = "audio.wav"
-    if not video_file.endswith(('.mp4', '.mkv', '.avi')):
-        raise RuntimeError(f"Invalid file type for audio extraction: {video_file}")
     command = f"ffmpeg -i {video_file} -vn -acodec pcm_s16le -ar 44100 -ac 2 {audio_file}"
-    os.system(command)
+    subprocess.run(command, shell=True, check=True)
     return audio_file
 
 @app.post("/transcribe/")
-async def transcribe(
-    file: UploadFile = File(...),
-    model_name: str = Form("tiny"),
-    language: str = Form(None)
-):
+async def transcribe(file: UploadFile = File(...), language: Optional[str] = Form(None)):
     try:
-        model = models.get(model_name, models["tiny"])
         filename = save_file(file)
         if filename.endswith(('.mp4', '.mkv', '.avi')):
             audio_file = extract_audio(filename)
         else:
             audio_file = filename
         result = model.transcribe(audio_file, language=language)
+
+        # Include timestamps
+        segments = result['segments']
+        transcription_with_timestamps = [
+            {"text": segment['text'], "start": segment['start'], "end": segment['end']}
+            for segment in segments
+        ]
+
         os.remove(filename)
         os.remove(audio_file)
-        return {"transcription": result["text"]}
+        return {"transcription": transcription_with_timestamps}
     except Exception as e:
         print(f"Error occurred: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
@@ -57,21 +57,27 @@ async def transcribe(
 @app.post("/translate/")
 async def translate(
     file: UploadFile = File(...),
-    model_name: str = Form("tiny"),
-    source_language: str = Form(None),
+    source_language: Optional[str] = Form(None),
     target_language: str = Form("en")
 ):
     try:
-        model = models.get(model_name, models["tiny"])
         filename = save_file(file)
         if filename.endswith(('.mp4', '.mkv', '.avi')):
             audio_file = extract_audio(filename)
         else:
             audio_file = filename
         result = model.transcribe(audio_file, task="translate", language=source_language)
+
+        # Include timestamps
+        segments = result['segments']
+        translation_with_timestamps = [
+            {"text": segment['text'], "start": segment['start'], "end": segment['end']}
+            for segment in segments
+        ]
+
         os.remove(filename)
         os.remove(audio_file)
-        return {"translation": result["text"]}
+        return {"translation": translation_with_timestamps}
     except Exception as e:
         print(f"Error occurred: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
