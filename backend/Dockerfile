@@ -8,6 +8,9 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Set the environment variable for the Whisper model directory
+ENV WHISPER_MODELS_DIR=/app/whisper_models
+
 # Download the tiny Whisper model
 RUN python -c "import whisper; whisper.load_model('tiny')"
 
