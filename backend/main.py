@@ -1,6 +1,7 @@
-from fastapi import FastAPI, UploadFile, File, Form
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import whisper
+import torch
 import os
 
 app = FastAPI()
@@ -13,9 +14,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load the model on GPU if available
+# Load models on GPU if available
 device = "cuda" if torch.cuda.is_available() else "cpu"
-model = whisper.load_model("base", device=device)
+models = {
+    "base": whisper.load_model("base").to(device),
+    #"large-v3": whisper.load_model("large-v3").to(device)
+}
 
 def save_file(file: UploadFile) -> str:
     ext = file.filename.split('.')[-1]
@@ -26,18 +30,34 @@ def save_file(file: UploadFile) -> str:
 
 def extract_audio(video_file: str) -> str:
     audio_file = "audio.wav"
+    if not video_file.endswith(('.mp4', '.mkv', '.avi')):
+        raise RuntimeError(f"Invalid file type for audio extraction: {video_file}")
     command = f"ffmpeg -i {video_file} -vn -acodec pcm_s16le -ar 44100 -ac 2 {audio_file}"
-    subprocess.run(command, shell=True, check=True)
+    os.system(command)
     return audio_file
 
+def detect_language(audio_file: str, model) -> str:
+    result = model.transcribe(audio_file, language=None, task="detect-language")
+    return result['language']
+
 @app.post("/transcribe/")
-async def transcribe(file: UploadFile = File(...), language: Optional[str] = Form(None)):
+async def transcribe(
+    file: UploadFile = File(...),
+    model_name: str = Form("base"),
+    language: str = Form(None)
+):
     try:
+        model = models.get(model_name, models["base"])
         filename = save_file(file)
         if filename.endswith(('.mp4', '.mkv', '.avi')):
             audio_file = extract_audio(filename)
         else:
             audio_file = filename
+        
+        # Detect the language if not provided
+        if not language:
+            language = detect_language(audio_file, model)
+
         result = model.transcribe(audio_file, language=language)
 
         # Include timestamps
@@ -49,7 +69,10 @@ async def transcribe(file: UploadFile = File(...), language: Optional[str] = For
 
         os.remove(filename)
         os.remove(audio_file)
-        return {"transcription": transcription_with_timestamps}
+        return {
+            "detected_language": language,
+            "transcription": transcription_with_timestamps
+        }
     except Exception as e:
         print(f"Error occurred: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
@@ -57,15 +80,22 @@ async def transcribe(file: UploadFile = File(...), language: Optional[str] = For
 @app.post("/translate/")
 async def translate(
     file: UploadFile = File(...),
-    source_language: Optional[str] = Form(None),
+    model_name: str = Form("base"),
+    source_language: str = Form(None),
     target_language: str = Form("en")
 ):
     try:
+        model = models.get(model_name, models["base"])
         filename = save_file(file)
         if filename.endswith(('.mp4', '.mkv', '.avi')):
             audio_file = extract_audio(filename)
         else:
             audio_file = filename
+
+        # Detect the source language if not provided
+        if not source_language:
+            source_language = detect_language(audio_file, model)
+
         result = model.transcribe(audio_file, task="translate", language=source_language)
 
         # Include timestamps
@@ -77,7 +107,10 @@ async def translate(
 
         os.remove(filename)
         os.remove(audio_file)
-        return {"translation": translation_with_timestamps}
+        return {
+            "detected_language": source_language,
+            "translation": translation_with_timestamps
+        }
     except Exception as e:
         print(f"Error occurred: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")

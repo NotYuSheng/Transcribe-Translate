@@ -1,0 +1,26 @@
+# Ignore the whisper models directory
+whisper_models/
+
+# Ignore Python cache files
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore Docker files
+*.log
+docker-compose.override.yml
+.env
+
+# Ignore node_modules (if using a frontend)
+node_modules/
+
+# Ignore Python virtual environments
+venv/
+.venv/
+
+# Ignore environment variable files
+.env
+
+# Ignore any temp or backup files
+*.bak
+*.tmp
