@@ -11,11 +11,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Set the environment variable for the Whisper model directory
 ENV WHISPER_MODELS_DIR=/app/whisper_models
 
-# Download the base Whisper model
-RUN python -c "import whisper; whisper.load_model('base')"
-
-# Download the large-v3 Whisper model
-# RUN python -c "import whisper; whisper.load_model('large-v3')"
+# Download the base, base.en, and large Whisper models to the volume
+RUN python -c "import whisper; whisper.load_model('base', download_root='$WHISPER_MODELS_DIR')"
+RUN python -c "import whisper; whisper.load_model('base.en', download_root='$WHISPER_MODELS_DIR')"
+RUN python -c "import whisper; whisper.load_model('large', download_root='$WHISPER_MODELS_DIR')"
 
 COPY . .
 

@@ -18,7 +18,8 @@ app.add_middleware(
 device = "cuda" if torch.cuda.is_available() else "cpu"
 models = {
     "base": whisper.load_model("base").to(device),
-    #"large-v3": whisper.load_model("large-v3").to(device)
+    "base.en": whisper.load_model("base.en").to(device),
+    "large": whisper.load_model("large").to(device)
 }
 
 def save_file(file: UploadFile) -> str:
