@@ -16,6 +16,16 @@ You can access the project documentation at [[GitHub Pages](https://notyusheng.g
 - Ensure port 3000 and 8000 are not already in use
 - Project can be ran on either CPU or GPU
 
+## Supported formats
+
+### Import Options:
+- Audio: .mp3, .wav, .flac, .m4a, etc.
+- Video: .mp4, .mkv, .avi, .mov, etc.
+
+### Export Options: 
+- Users can export the results in .txt, .json, .srt, or .vtt formats.
+
+
 ## Usage
 > [!NOTE] 
 Project will run on GPU by default. To run on CPU, use the `docker-compose.cpu.yml` instead
