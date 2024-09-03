@@ -3,6 +3,9 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/NotYuSheng/Multimodal-Large-Language-Model?color=red)
 [![Sphinx](https://img.shields.io/badge/Sphinx-000?logo=sphinx&logoColor=fff)](https://notyusheng.github.io/Transcribe-Translate/index.html)
 
+> [!NOTE] 
+This project is currently under development.
+
 ## Host requirements
 - **Docker**: [[Installation Guide](https://docs.docker.com/engine/install/)]
 - **Docker Compose**: [[Installation Guide](https://docs.docker.com/compose/install/)]
