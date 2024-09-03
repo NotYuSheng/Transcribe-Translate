@@ -1,10 +1,13 @@
 # Transcribe-Translate
 
-![GitHub last commit](https://img.shields.io/github/last-commit/NotYuSheng/Multimodal-Large-Language-Model?color=red)
+![GitHub last commit](https://img.shields.io/github/last-commit/NotYuSheng/Transcribe-Translate?color=red)
 [![Sphinx](https://img.shields.io/badge/Sphinx-000?logo=sphinx&logoColor=fff)](https://notyusheng.github.io/Transcribe-Translate/index.html)
 
 > [!NOTE] 
 This project is currently under development.
+
+## Documentation
+You can access the project documentation at [[GitHub Pages](https://notyusheng.github.io/Transcribe-Translate/)].
 
 ## Host requirements
 - **Docker**: [[Installation Guide](https://docs.docker.com/engine/install/)]
