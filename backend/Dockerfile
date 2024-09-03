@@ -1,25 +1,19 @@
 FROM python:3.9-slim
 
-# Install required system packages
-RUN apt-get update && apt-get install -y \
-    ffmpeg \
-    && apt-get clean
+# Install necessary packages
+RUN apt-get update && apt-get install -y ffmpeg
 
-# Install Python dependencies
+WORKDIR /app
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Download the Whisper models (tiny and large-v3)
-RUN python3 -c "\
-import whisper;\
-whisper.load_model('tiny');\
-whisper.load_model('large-v3');"
+# Download the tiny Whisper model
+RUN python -c "import whisper; whisper.load_model('tiny')"
 
-# Copy the application code
-COPY . /app
+# Download the large-v3 Whisper model
+# RUN python -c "import whisper; whisper.load_model('large-v3')"
 
-# Set working directory
-WORKDIR /app
+COPY . .
 
-# Command to run the FastAPI server
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
