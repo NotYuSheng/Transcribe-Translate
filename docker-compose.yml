@@ -5,7 +5,13 @@ services:
       - "8000:8000"
     volumes:
       - whisper_models:/app/whisper_models
-
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
   frontend:
     build: ./frontend
     ports:
