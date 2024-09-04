@@ -18,8 +18,8 @@ You can access the project documentation at [[GitHub Pages](https://notyusheng.g
 ## Model requirements
 The following table outlines the recommended hardware requirements for each Whisper model based on typical usage scenarios. Please ensure that your system meets or exceeds these specifications for optimal performance.
 
-| Model      | Size (GB) | Minimum RAM (GB) | Recommended RAM (GB) | GPU Memory (VRAM) (GB) | Notes                                             |
-|------------|------------|------------------|----------------------|------------------------|---------------------------------------------------|
+| Model      | Size (GB) | Minimum RAM (GB) | Recommended RAM (GB) | GPU Memory (VRAM) (GB) | Notes                                              |
+|------------|:----------:|:----------------:|:--------------------:|:----------------------:|---------------------------------------------------|
 | `tiny`     | ~0.07      | 2                | 4                    | 1                      | Suitable for lightweight tasks and low resource usage. |
 | `base`     | ~0.14      | 4                | 6                    | 2                      | Good for basic transcription and smaller workloads. |
 | `small`    | ~0.46      | 6                | 8                    | 4                      | Ideal for moderate tasks, offering a balance between performance and accuracy. |
