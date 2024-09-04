@@ -23,6 +23,13 @@ h2 {
     margin-bottom: 20px;
 }
 
+.upload-label {
+    font-size: 18px;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 10px;
+}
+
 .file-input {
     display: block;
     margin: 0 auto 20px;
