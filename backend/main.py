@@ -23,7 +23,6 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 def get_available_models() -> list:
     """Returns the list of available models in the directory."""
     try:
-        # List all directories (model names) in the whisper_models folder
         models = [d for d in os.listdir(WHISPER_MODELS_DIR) if os.path.isdir(os.path.join(WHISPER_MODELS_DIR, d))]
         return models
     except Exception as e:
@@ -74,13 +73,13 @@ async def list_models():
 @app.post("/transcribe/")
 async def transcribe(
     file: UploadFile = File(...),
-    model_name: str = Form("base"),
+    selected_model: str = Form("base"),  # Changed from model_name to selected_model
     language: str = Form(None)
 ):
     """Transcribe an audio or video file."""
     try:
         # Load the model dynamically
-        model = load_model(model_name)
+        model = load_model(selected_model)  # Using selected_model here
         filename = save_file(file)
         
         # If it's a video, extract the audio
@@ -115,14 +114,14 @@ async def transcribe(
 @app.post("/translate/")
 async def translate(
     file: UploadFile = File(...),
-    model_name: str = Form("base"),
+    selected_model: str = Form("base"),  # Changed from model_name to selected_model
     source_language: str = Form(None),
     target_language: str = Form("en")
 ):
     """Translate an audio or video file."""
     try:
         # Load the model dynamically
-        model = load_model(model_name)
+        model = load_model(selected_model)  # Using selected_model here
         filename = save_file(file)
 
         # If it's a video, extract the audio
