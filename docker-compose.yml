@@ -1,10 +1,12 @@
 services:
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
     volumes:
-      - whisper_models:/app/whisper_models
+      - ./backend/whisper_models:/app/whisper_models  # Bind mount
     deploy:
       resources:
         reservations:
@@ -12,12 +14,12 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
+
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
     depends_on:
       - backend
-
-volumes:
-  whisper_models:
