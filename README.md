@@ -44,9 +44,6 @@ The following table outlines the recommended hardware requirements for each Whis
 > [!NOTE]
 > Project will run on GPU by default. To run on CPU, use the `docker-compose.cpu.yml` instead
 
-> [!IMPORTANT]  
-> If running on Windows with GPU, run commands from WSL terminal to avoid volume mounting issues
-
 1.  Clone this repository and navigate to project folder
 ```
 git clone https://github.com/NotYuSheng/Transcribe-Translate.git
