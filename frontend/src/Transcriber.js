@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import FileSaver from 'file-saver';
+import './Transcriber.css'; // Import the CSS file
 
 const Transcriber = () => {
     const [file, setFile] = useState(null);
@@ -13,6 +14,21 @@ const Transcriber = () => {
     const [detectedLanguage, setDetectedLanguage] = useState("");
     const [loading, setLoading] = useState(false);
     const [exportFormat, setExportFormat] = useState("txt");
+    const [startTime, setStartTime] = useState(null);
+    const [elapsedTime, setElapsedTime] = useState(0);
+    const [processingComplete, setProcessingComplete] = useState(false);
+
+    useEffect(() => {
+        let timer;
+        if (loading && startTime) {
+            timer = setInterval(() => {
+                setElapsedTime(Math.floor((Date.now() - startTime) / 1000));
+            }, 1000);
+        } else {
+            clearInterval(timer);
+        }
+        return () => clearInterval(timer);
+    }, [loading, startTime]);
 
     const handleFileChange = (e) => {
         const uploadedFile = e.target.files[0];
@@ -24,7 +40,13 @@ const Transcriber = () => {
     };
 
     const handleTranscribe = async () => {
+        if (!file) {
+            alert("Please upload a file before transcribing.");
+            return;
+        }
         setLoading(true);
+        setProcessingComplete(false);
+        setStartTime(Date.now());
         setTranscription([]);
         setTranslation([]);
         setDetectedLanguage("");
@@ -34,14 +56,28 @@ const Transcriber = () => {
         formData.append("model_name", model);
         formData.append("language", inputLanguage);
 
-        const response = await axios.post("http://localhost:8000/transcribe/", formData);
-        setTranscription(response.data.transcription);
-        setDetectedLanguage(response.data.detected_language);
-        setLoading(false);
+        try {
+            const response = await axios.post("http://localhost:8000/transcribe/", formData);
+            setTranscription(response.data.transcription);
+            setDetectedLanguage(response.data.detected_language);
+        } catch (error) {
+            console.error("Error during transcription:", error);
+            alert("An error occurred during transcription.");
+        } finally {
+            setLoading(false);
+            setProcessingComplete(true);
+            setStartTime(null);
+        }
     };
 
     const handleTranslate = async () => {
+        if (!file) {
+            alert("Please upload a file before translating.");
+            return;
+        }
         setLoading(true);
+        setProcessingComplete(false);
+        setStartTime(Date.now());
         setTranscription([]);
         setTranslation([]);
         setDetectedLanguage("");
@@ -52,10 +88,18 @@ const Transcriber = () => {
         formData.append("source_language", inputLanguage);
         formData.append("target_language", targetLanguage);
 
-        const response = await axios.post("http://localhost:8000/translate/", formData);
-        setTranslation(response.data.translation);
-        setDetectedLanguage(response.data.detected_language);
-        setLoading(false);
+        try {
+            const response = await axios.post("http://localhost:8000/translate/", formData);
+            setTranslation(response.data.translation);
+            setDetectedLanguage(response.data.detected_language);
+        } catch (error) {
+            console.error("Error during translation:", error);
+            alert("An error occurred during translation.");
+        } finally {
+            setLoading(false);
+            setProcessingComplete(true);
+            setStartTime(null);
+        }
     };
 
     const exportFile = (content, format) => {
@@ -92,101 +136,109 @@ const Transcriber = () => {
     };
 
     return (
-        <div>
-            <h2>Upload Audio or Video</h2>
-            <input type="file" accept="audio/*,video/*" onChange={handleFileChange} />
+        <div className="container">
+            <h2>Transcribe & Translate</h2>
+            <input type="file" accept="audio/*,video/*" onChange={handleFileChange} className="file-input" />
 
             {mediaURL && (
-                <div>
+                <div className="media-preview">
                     <h3>Preview</h3>
                     {file && file.type.startsWith("video") ? (
-                        <video controls src={mediaURL} width="600" />
+                        <video controls src={mediaURL} />
                     ) : (
                         <audio controls src={mediaURL} />
                     )}
                 </div>
             )}
 
-            <div>
-                <label>Model: </label>
-                <select value={model} onChange={(e) => setModel(e.target.value)}>
-                    <option value="base">Base</option>
-                    <option value="large">Large</option>
-                    <option value="base.en">Base.en</option>
-                </select>
+            <div className="controls">
+                <div className="select-group">
+                    <label>Model: </label>
+                    <select value={model} onChange={(e) => setModel(e.target.value)}>
+                        <option value="base">Base</option>
+                        <option value="large">Large</option>
+                        <option value="base.en">Base.en</option>
+                    </select>
+                </div>
+
+                <div className="input-group">
+                    <label>Input Language: </label>
+                    <input
+                        type="text"
+                        placeholder="Optional (e.g., 'en')"
+                        value={inputLanguage}
+                        onChange={(e) => setInputLanguage(e.target.value)}
+                    />
+                </div>
             </div>
 
-            <div>
-                <label>Input Language: </label>
-                <input
-                    type="text"
-                    placeholder="Optional (e.g., 'en')"
-                    value={inputLanguage}
-                    onChange={(e) => setInputLanguage(e.target.value)}
-                />
-            </div>
-
-            <div>
+            <div className="action-buttons">
                 <button onClick={handleTranscribe} disabled={loading}>Transcribe</button>
                 <button onClick={handleTranslate} disabled={loading}>Translate</button>
             </div>
 
             {loading && (
-                <div className="loading">Processing...</div>
-            )}
-
-            {detectedLanguage && (
-                <div>
-                    <h3>Detected Language: {detectedLanguage}</h3>
+                <div className="loading">
+                    Processing... Time elapsed: {elapsedTime} seconds
                 </div>
             )}
 
-            <div>
-                <h3>Transcription:</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Start Time</th>
-                            <th>End Time</th>
-                            <th>Text</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {transcription.map((segment, index) => (
-                            <tr key={index}>
-                                <td>{formatTime(segment.start)}</td>
-                                <td>{formatTime(segment.end)}</td>
-                                <td>{segment.text}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+            {processingComplete && (
+                <div className="processing-time">
+                    <h3>Total Processing Time: {elapsedTime} seconds</h3>
+                </div>
+            )}
 
-            <div>
-                <h3>Translation:</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Start Time</th>
-                            <th>End Time</th>
-                            <th>Text</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {translation.map((segment, index) => (
-                            <tr key={index}>
-                                <td>{formatTime(segment.start)}</td>
-                                <td>{formatTime(segment.end)}</td>
-                                <td>{segment.text}</td>
+            {processingComplete && transcription.length > 0 && (
+                <div className="result">
+                    <h3>Transcription:</h3>
+                    <table className="result-table">
+                        <thead>
+                            <tr>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Text</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                            {transcription.map((segment, index) => (
+                                <tr key={index}>
+                                    <td>{formatTime(segment.start)}</td>
+                                    <td>{formatTime(segment.end)}</td>
+                                    <td>{segment.text}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
 
-            {(transcription.length > 0 || translation.length > 0) && (
-                <div>
+            {processingComplete && translation.length > 0 && (
+                <div className="result">
+                    <h3>Translation:</h3>
+                    <table className="result-table">
+                        <thead>
+                            <tr>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Text</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {translation.map((segment, index) => (
+                                <tr key={index}>
+                                    <td>{formatTime(segment.start)}</td>
+                                    <td>{formatTime(segment.end)}</td>
+                                    <td>{segment.text}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+
+            {processingComplete && (transcription.length > 0 || translation.length > 0) && (
+                <div className="export">
                     <label>Export as: </label>
                     <select value={exportFormat} onChange={(e) => setExportFormat(e.target.value)}>
                         <option value="txt">TXT</option>
