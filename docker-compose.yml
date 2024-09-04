@@ -14,8 +14,6 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
-        limits:
-          memory: 8g
 
   frontend:
     build:
