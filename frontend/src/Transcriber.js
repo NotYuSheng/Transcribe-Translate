@@ -10,13 +10,28 @@ const Transcriber = () => {
     const [translation, setTranslation] = useState([]);
     const [inputLanguage, setInputLanguage] = useState("");
     const [targetLanguage, setTargetLanguage] = useState("en");
-    const [model, setModel] = useState("base");
+    const [models, setModels] = useState([]);  // Dynamic list of models
+    const [selectedModel, setSelectedModel] = useState("");
     const [detectedLanguage, setDetectedLanguage] = useState("");
     const [loading, setLoading] = useState(false);
     const [exportFormat, setExportFormat] = useState("txt");
     const [startTime, setStartTime] = useState(null);
     const [elapsedTime, setElapsedTime] = useState(0);
     const [processingComplete, setProcessingComplete] = useState(false);
+
+    // Fetch available models on component mount
+    useEffect(() => {
+        const fetchModels = async () => {
+            try {
+                const response = await axios.get("http://localhost:8000/models/");
+                setModels(response.data.models);
+                setSelectedModel(response.data.models[0] || "");  // Set default model
+            } catch (error) {
+                console.error("Error fetching models:", error);
+            }
+        };
+        fetchModels();
+    }, []);
 
     useEffect(() => {
         let timer;
@@ -53,7 +68,7 @@ const Transcriber = () => {
 
         const formData = new FormData();
         formData.append("file", file);
-        formData.append("model_name", model);
+        formData.append("model_name", selectedModel);
         formData.append("language", inputLanguage);
 
         try {
@@ -84,7 +99,7 @@ const Transcriber = () => {
 
         const formData = new FormData();
         formData.append("file", file);
-        formData.append("model_name", model);
+        formData.append("model_name", selectedModel);
         formData.append("source_language", inputLanguage);
         formData.append("target_language", targetLanguage);
 
@@ -137,7 +152,7 @@ const Transcriber = () => {
 
     return (
         <div className="container">
-            <h2>Upload a File</h2>
+            <h2>Transcribe & Translate</h2>
             <input type="file" accept="audio/*,video/*" onChange={handleFileChange} className="file-input" />
 
             {mediaURL && (
@@ -154,10 +169,12 @@ const Transcriber = () => {
             <div className="controls">
                 <div className="select-group">
                     <label>Model: </label>
-                    <select value={model} onChange={(e) => setModel(e.target.value)}>
-                        <option value="base">Base</option>
-                        <option value="large">Large</option>
-                        <option value="base.en">Base.en</option>
+                    <select value={selectedModel} onChange={(e) => setSelectedModel(e.target.value)}>
+                        {models.map((model) => (
+                            <option key={model} value={model}>
+                                {model}
+                            </option>
+                        ))}
                     </select>
                 </div>
 
