@@ -3,7 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 import whisper
 import torch
 import os
-import subprocess
 
 app = FastAPI()
 
@@ -15,15 +14,37 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load models on GPU if available
+# Global variable for the model directory
+WHISPER_MODELS_DIR = "/app/whisper_models"
+
+# Check if GPU is available
 device = "cuda" if torch.cuda.is_available() else "cpu"
-models = {
-    "base": whisper.load_model("base", download_root="/app/whisper_models").to(device),
-    "base.en": whisper.load_model("base.en", download_root="/app/whisper_models").to(device),
-    "large": whisper.load_model("large", download_root="/app/whisper_models").to(device)
-}
+
+def get_available_models() -> list:
+    """Returns the list of available models in the directory."""
+    try:
+        # List all directories (model names) in the whisper_models folder
+        models = [d for d in os.listdir(WHISPER_MODELS_DIR) if os.path.isdir(os.path.join(WHISPER_MODELS_DIR, d))]
+        return models
+    except Exception as e:
+        print(f"Error while fetching models: {e}")
+        return []
+
+def load_model(model_name: str):
+    """Load the model dynamically from the specified directory."""
+    try:
+        model_path = os.path.join(WHISPER_MODELS_DIR, model_name)
+        if os.path.exists(model_path):
+            model = whisper.load_model(model_name, download_root=WHISPER_MODELS_DIR).to(device)
+            return model
+        else:
+            raise ValueError(f"Model {model_name} not found in {WHISPER_MODELS_DIR}.")
+    except Exception as e:
+        print(f"Error while loading model: {e}")
+        raise HTTPException(status_code=500, detail=f"Error loading model {model_name}: {str(e)}")
 
 def save_file(file: UploadFile) -> str:
+    """Save the uploaded file to the local system."""
     ext = file.filename.split('.')[-1]
     filename = f"temp.{ext}"
     with open(filename, "wb") as f:
@@ -31,6 +52,7 @@ def save_file(file: UploadFile) -> str:
     return filename
 
 def extract_audio(video_file: str) -> str:
+    """Extract audio from a video file using ffmpeg."""
     audio_file = "audio.wav"
     if not video_file.endswith(('.mp4', '.mkv', '.avi')):
         raise RuntimeError(f"Invalid file type for audio extraction: {video_file}")
@@ -39,32 +61,15 @@ def extract_audio(video_file: str) -> str:
     return audio_file
 
 def detect_language(audio_file: str, model) -> str:
+    """Detect the language of the audio using the Whisper model."""
     result = model.transcribe(audio_file, language=None, task="detect-language")
     return result['language']
 
-def generate_srt_file(transcription, filename="subtitles.srt"):
-    """Generate an SRT file from transcription segments."""
-    with open(filename, 'w') as f:
-        for i, segment in enumerate(transcription):
-            start = format_time(segment['start'])
-            end = format_time(segment['end'])
-            text = segment['text']
-            f.write(f"{i + 1}\n{start} --> {end}\n{text}\n\n")
-    return filename
-
-def format_time(seconds: float) -> str:
-    """Format time in seconds to SRT timestamp format (hh:mm:ss,ms)"""
-    hours = int(seconds // 3600)
-    minutes = int((seconds % 3600) // 60)
-    secs = int(seconds % 60)
-    millis = int((seconds % 1) * 1000)
-    return f"{hours:02}:{minutes:02}:{secs:02},{millis:03}"
-
-def add_subtitles_to_video(video_file: str, subtitle_file: str, output_file: str) -> str:
-    """Overlay subtitles onto the video using FFmpeg."""
-    command = f"ffmpeg -i {video_file} -vf subtitles={subtitle_file} {output_file}"
-    subprocess.run(command, shell=True, check=True)
-    return output_file
+@app.get("/models/")
+async def list_models():
+    """List the available models in the whisper_models directory."""
+    models = get_available_models()
+    return {"models": models}
 
 @app.post("/transcribe/")
 async def transcribe(
@@ -72,42 +77,36 @@ async def transcribe(
     model_name: str = Form("base"),
     language: str = Form(None)
 ):
+    """Transcribe an audio or video file."""
     try:
-        model = models.get(model_name, models["base"])
+        # Load the model dynamically
+        model = load_model(model_name)
         filename = save_file(file)
+        
+        # If it's a video, extract the audio
         if filename.endswith(('.mp4', '.mkv', '.avi')):
             audio_file = extract_audio(filename)
         else:
             audio_file = filename
-
+        
         # Detect the language if not provided
         if not language:
             language = detect_language(audio_file, model)
 
         result = model.transcribe(audio_file, language=language)
 
-        # Include timestamps
+        # Include timestamps in the transcription
         segments = result['segments']
         transcription_with_timestamps = [
             {"text": segment['text'], "start": segment['start'], "end": segment['end']}
             for segment in segments
         ]
 
-        # Generate SRT file
-        srt_file = generate_srt_file(transcription_with_timestamps)
-
-        # Add subtitles to video if it's a video file
-        if filename.endswith(('.mp4', '.mkv', '.avi')):
-            output_file = f"subtitled_{filename}"
-            add_subtitles_to_video(filename, srt_file, output_file)
-
         os.remove(filename)
         os.remove(audio_file)
         return {
             "detected_language": language,
-            "transcription": transcription_with_timestamps,
-            "subtitle_file": srt_file,
-            "video_with_subtitles": output_file if filename.endswith(('.mp4', '.mkv', '.avi')) else None
+            "transcription": transcription_with_timestamps
         }
     except Exception as e:
         print(f"Error occurred: {e}")
@@ -120,9 +119,13 @@ async def translate(
     source_language: str = Form(None),
     target_language: str = Form("en")
 ):
+    """Translate an audio or video file."""
     try:
-        model = models.get(model_name, models["base"])
+        # Load the model dynamically
+        model = load_model(model_name)
         filename = save_file(file)
+
+        # If it's a video, extract the audio
         if filename.endswith(('.mp4', '.mkv', '.avi')):
             audio_file = extract_audio(filename)
         else:
@@ -134,28 +137,18 @@ async def translate(
 
         result = model.transcribe(audio_file, task="translate", language=source_language)
 
-        # Include timestamps
+        # Include timestamps in the translation
         segments = result['segments']
         translation_with_timestamps = [
             {"text": segment['text'], "start": segment['start'], "end": segment['end']}
             for segment in segments
         ]
 
-        # Generate SRT file for the translation
-        srt_file = generate_srt_file(translation_with_timestamps, filename="translated_subtitles.srt")
-
-        # Add subtitles to video if it's a video file
-        if filename.endswith(('.mp4', '.mkv', '.avi')):
-            output_file = f"translated_subtitled_{filename}"
-            add_subtitles_to_video(filename, srt_file, output_file)
-
         os.remove(filename)
         os.remove(audio_file)
         return {
             "detected_language": source_language,
-            "translation": translation_with_timestamps,
-            "subtitle_file": srt_file,
-            "video_with_subtitles": output_file if filename.endswith(('.mp4', '.mkv', '.avi')) else None
+            "translation": translation_with_timestamps
         }
     except Exception as e:
         print(f"Error occurred: {e}")
