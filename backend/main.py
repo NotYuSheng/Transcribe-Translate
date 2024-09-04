@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import whisper
 import torch
 import os
+import subprocess
 
 app = FastAPI()
 
@@ -41,6 +42,30 @@ def detect_language(audio_file: str, model) -> str:
     result = model.transcribe(audio_file, language=None, task="detect-language")
     return result['language']
 
+def generate_srt_file(transcription, filename="subtitles.srt"):
+    """Generate an SRT file from transcription segments."""
+    with open(filename, 'w') as f:
+        for i, segment in enumerate(transcription):
+            start = format_time(segment['start'])
+            end = format_time(segment['end'])
+            text = segment['text']
+            f.write(f"{i + 1}\n{start} --> {end}\n{text}\n\n")
+    return filename
+
+def format_time(seconds: float) -> str:
+    """Format time in seconds to SRT timestamp format (hh:mm:ss,ms)"""
+    hours = int(seconds // 3600)
+    minutes = int((seconds % 3600) // 60)
+    secs = int(seconds % 60)
+    millis = int((seconds % 1) * 1000)
+    return f"{hours:02}:{minutes:02}:{secs:02},{millis:03}"
+
+def add_subtitles_to_video(video_file: str, subtitle_file: str, output_file: str) -> str:
+    """Overlay subtitles onto the video using FFmpeg."""
+    command = f"ffmpeg -i {video_file} -vf subtitles={subtitle_file} {output_file}"
+    subprocess.run(command, shell=True, check=True)
+    return output_file
+
 @app.post("/transcribe/")
 async def transcribe(
     file: UploadFile = File(...),
@@ -54,7 +79,7 @@ async def transcribe(
             audio_file = extract_audio(filename)
         else:
             audio_file = filename
-        
+
         # Detect the language if not provided
         if not language:
             language = detect_language(audio_file, model)
@@ -68,11 +93,21 @@ async def transcribe(
             for segment in segments
         ]
 
+        # Generate SRT file
+        srt_file = generate_srt_file(transcription_with_timestamps)
+
+        # Add subtitles to video if it's a video file
+        if filename.endswith(('.mp4', '.mkv', '.avi')):
+            output_file = f"subtitled_{filename}"
+            add_subtitles_to_video(filename, srt_file, output_file)
+
         os.remove(filename)
         os.remove(audio_file)
         return {
             "detected_language": language,
-            "transcription": transcription_with_timestamps
+            "transcription": transcription_with_timestamps,
+            "subtitle_file": srt_file,
+            "video_with_subtitles": output_file if filename.endswith(('.mp4', '.mkv', '.avi')) else None
         }
     except Exception as e:
         print(f"Error occurred: {e}")
@@ -106,11 +141,21 @@ async def translate(
             for segment in segments
         ]
 
+        # Generate SRT file for the translation
+        srt_file = generate_srt_file(translation_with_timestamps, filename="translated_subtitles.srt")
+
+        # Add subtitles to video if it's a video file
+        if filename.endswith(('.mp4', '.mkv', '.avi')):
+            output_file = f"translated_subtitled_{filename}"
+            add_subtitles_to_video(filename, srt_file, output_file)
+
         os.remove(filename)
         os.remove(audio_file)
         return {
             "detected_language": source_language,
-            "translation": translation_with_timestamps
+            "translation": translation_with_timestamps,
+            "subtitle_file": srt_file,
+            "video_with_subtitles": output_file if filename.endswith(('.mp4', '.mkv', '.avi')) else None
         }
     except Exception as e:
         print(f"Error occurred: {e}")
