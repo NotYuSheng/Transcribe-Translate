@@ -17,9 +17,9 @@ app.add_middleware(
 # Load models on GPU if available
 device = "cuda" if torch.cuda.is_available() else "cpu"
 models = {
-    "base": whisper.load_model("base").to(device),
-    "base.en": whisper.load_model("base.en").to(device),
-    "large": whisper.load_model("large").to(device)
+    "base": whisper.load_model("base", download_root="/app/whisper_models").to(device),
+    "base.en": whisper.load_model("base.en", download_root="/app/whisper_models").to(device),
+    "large": whisper.load_model("large", download_root="/app/whisper_models").to(device)
 }
 
 def save_file(file: UploadFile) -> str:
