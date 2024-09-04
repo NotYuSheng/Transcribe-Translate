@@ -137,7 +137,7 @@ const Transcriber = () => {
 
     return (
         <div className="container">
-            <h2>Transcribe & Translate</h2>
+            <h2>Upload a File</h2>
             <input type="file" accept="audio/*,video/*" onChange={handleFileChange} className="file-input" />
 
             {mediaURL && (
