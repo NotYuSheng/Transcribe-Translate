@@ -13,21 +13,17 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '20'
+    - name: Build Docker image
+      run: docker build -t my-react-app ./frontend  # Build the frontend Docker image
 
-    - name: Install dependencies
-      working-directory: ./frontend   # Specify frontend directory
-      run: npm install
+    - name: Run the build inside Docker
+      run: docker run --rm my-react-app npm run build  # Run the build command inside the Docker container
 
-    - name: Build the app
-      working-directory: ./frontend   # Specify frontend directory
-      run: npm run build
+    - name: Copy build artifacts
+      run: docker cp $(docker create my-react-app):/path/to/build ./frontend/build  # Copy the build directory from the container
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./frontend/build  # Specify the frontend build directory
+        publish_dir: ./frontend/build  # Publish the build folder to GitHub Pages
