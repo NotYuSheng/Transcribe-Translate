@@ -68,7 +68,7 @@ const Transcriber = () => {
 
         const formData = new FormData();
         formData.append("file", file);
-        formData.append("model_name", selectedModel);
+        formData.append("selected_model", selectedModel);  // Changed from model_name to selected_model
         formData.append("language", inputLanguage);
 
         try {
@@ -99,7 +99,7 @@ const Transcriber = () => {
 
         const formData = new FormData();
         formData.append("file", file);
-        formData.append("model_name", selectedModel);
+        formData.append("selected_model", selectedModel);  // Changed from model_name to selected_model
         formData.append("source_language", inputLanguage);
         formData.append("target_language", targetLanguage);
 
