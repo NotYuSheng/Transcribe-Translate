@@ -4,6 +4,9 @@
 [![Sphinx](https://img.shields.io/badge/Sphinx-000?logo=sphinx&logoColor=fff)](https://notyusheng.github.io/Transcribe-Translate/index.html)
 ![GitHub last commit](https://img.shields.io/github/last-commit/NotYuSheng/Transcribe-Translate?color=red)
 
+> [!WARNING]  
+> This project is currently under development
+
 ## Documentation
 > [!WARNING]  
 > Documentation is currently under development
