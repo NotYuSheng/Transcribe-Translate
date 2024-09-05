@@ -11,7 +11,6 @@ COPY package*.json ./
 RUN npm install
 
 # Install additional dependencies (if not already included in package.json)
-RUN npm install @mantine/core @mantine/hooks @mantine/form file-saver
 RUN npm install file-saver
 
 # Copy the rest of the application code

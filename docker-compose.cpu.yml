@@ -7,12 +7,14 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./backend/whisper_models:/app/whisper_models
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      - whisper_models:/app/whisper_models
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
 
   frontend:
     container_name: transcribe-translate-frontend
@@ -24,3 +26,6 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+
+volumes:
+  whisper_models:
