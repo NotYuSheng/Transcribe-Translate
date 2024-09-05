@@ -21,9 +21,20 @@ WHISPER_MODELS_DIR = "/app/whisper_models"
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 def get_available_models() -> list:
-    """Returns the list of available models in the directory."""
+    """Returns the list of available Whisper models (as .pt files) in the directory."""
     try:
-        models = [d for d in os.listdir(WHISPER_MODELS_DIR) if os.path.isdir(os.path.join(WHISPER_MODELS_DIR, d))]
+        # List all items in the WHISPER_MODELS_DIR
+        all_items = os.listdir(WHISPER_MODELS_DIR)
+        print(f"All items in the model directory: {all_items}")
+
+        # Filter the list to include only .pt files (which are the model files)
+        models = []
+        for item in all_items:
+            if item.endswith('.pt'):
+                model_name = item.replace('.pt', '')  # Remove the .pt extension to get the model name
+                models.append(model_name)
+
+        print(f"Found models: {models}")
         return models
     except Exception as e:
         print(f"Error while fetching models: {e}")

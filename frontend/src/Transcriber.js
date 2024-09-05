@@ -68,7 +68,7 @@ const Transcriber = () => {
 
         const formData = new FormData();
         formData.append("file", file);
-        formData.append("selected_model", selectedModel);  // Changed from model_name to selected_model
+        formData.append("model_name", selectedModel);
         formData.append("language", inputLanguage);
 
         try {
@@ -99,7 +99,7 @@ const Transcriber = () => {
 
         const formData = new FormData();
         formData.append("file", file);
-        formData.append("selected_model", selectedModel);  // Changed from model_name to selected_model
+        formData.append("model_name", selectedModel);
         formData.append("source_language", inputLanguage);
         formData.append("target_language", targetLanguage);
 
@@ -153,7 +153,7 @@ const Transcriber = () => {
     return (
         <div className="container">
             <label htmlFor="file-upload" className="upload-label">Upload File</label>
-            <input id="file-upload" type="file" accept="audio/*,video/*" onChange={handleFileChange} className="file-input" />
+            <input id="file-upload" type="file" accept="audio,video" onChange={handleFileChange} className="file-input" />
 
             {mediaURL && (
                 <div className="media-preview">

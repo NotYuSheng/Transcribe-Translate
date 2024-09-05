@@ -13,6 +13,7 @@ RUN python -c "import whisper; whisper.load_model('base', download_root='/app/wh
 RUN python -c "import whisper; whisper.load_model('base.en', download_root='/app/whisper_models')"
 RUN python -c "import whisper; whisper.load_model('large-v3', download_root='/app/whisper_models')"
 
-COPY . .
+# Copy only main.py into the container
+COPY main.py .
 
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
