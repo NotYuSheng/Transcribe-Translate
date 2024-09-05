@@ -8,13 +8,6 @@ services:
       - "8000:8000"
     volumes:
       - whisper_models:/app/whisper_models
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
 
   frontend:
     container_name: transcribe-translate-frontend
@@ -23,9 +16,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
-    depends_on:
-      backend:
-        condition: service_healthy
 
 volumes:
   whisper_models:

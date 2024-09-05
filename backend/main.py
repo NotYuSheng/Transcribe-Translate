@@ -163,9 +163,3 @@ async def translate(
     except Exception as e:
         print(f"Error occurred: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
-
-
-@app.get("/health")
-async def health():
-    return {"status": "healthy"}
-
