@@ -18,9 +18,11 @@ body {
     text-align: center;
 }
 
-h2 {
-    font-size: 24px;
-    margin-bottom: 20px;
+.upload-label {
+    font-size: 18px;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 10px;
 }
 
 .file-input {
@@ -30,13 +32,15 @@ h2 {
     border-radius: 4px;
     border: 1px solid #ccc;
     background-color: #f9f9f9;
+    cursor: pointer;
 }
 
 .media-preview {
     margin-bottom: 20px;
 }
 
-.media-preview video, .media-preview audio {
+.media-preview video, 
+.media-preview audio {
     max-width: 100%;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -82,11 +86,24 @@ button {
     cursor: pointer;
     background-color: #007bff;
     color: white;
+    transition: background-color 0.3s ease;
 }
 
 button:disabled {
     background-color: #ccc;
     cursor: not-allowed;
+}
+
+button:hover:not(:disabled) {
+    background-color: #0056b3;
+}
+
+button:active {
+    background-color: #004085;
+}
+
+button:focus {
+    outline: 2px solid #0056b3;
 }
 
 .loading {
@@ -134,6 +151,9 @@ button:disabled {
 
 .export select {
     margin-right: 10px;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
 }
 
 @media (max-width: 600px) {

@@ -152,8 +152,8 @@ const Transcriber = () => {
 
     return (
         <div className="container">
-            <h2>Transcribe & Translate</h2>
-            <input type="file" accept="audio,video" onChange={handleFileChange} className="file-input" />
+            <label htmlFor="file-upload" className="upload-label">Upload File</label>
+            <input id="file-upload" type="file" accept="audio,video" onChange={handleFileChange} className="file-input" />
 
             {mediaURL && (
                 <div className="media-preview">
