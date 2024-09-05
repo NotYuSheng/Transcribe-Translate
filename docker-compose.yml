@@ -1,18 +1,13 @@
 services:
   backend:
+    container_name: transcribe-translate-backend
     build: ./backend
     ports:
       - "8000:8000"
     volumes:
-      - whisper_models:/app/whisper_models
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
+      - ./backend/whisper_models:/app/whisper_models
   frontend:
+    container_name: transcribe-translate-frontend
     build: ./frontend
     ports:
       - "3000:3000"
