@@ -1,18 +1,26 @@
 services:
   backend:
-    build:
+    container_name: transcribe-translate-backend
+    build: 
       context: ./backend
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
     volumes:
-      - ./backend/whisper_models:/app/whisper_models  # Bind mount
+      - ./backend/whisper_models:/app/whisper_models
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   frontend:
+    container_name: transcribe-translate-frontend
     build:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
