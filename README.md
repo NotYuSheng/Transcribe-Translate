@@ -7,6 +7,7 @@
 ## Documentation
 > [!WARNING]  
 > Documentation is currently under development
+
 You can access the project documentation at [[GitHub Pages](https://notyusheng.github.io/Transcribe-Translate/)].
 
 ## Host requirements
