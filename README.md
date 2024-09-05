@@ -4,7 +4,7 @@
 [![Sphinx](https://img.shields.io/badge/Sphinx-000?logo=sphinx&logoColor=fff)](https://notyusheng.github.io/Transcribe-Translate/index.html)
 
 ## Documentation
-> [!NOTE]  
+> [!WARNING]  
 > Documentation is currently under development
 You can access the project documentation at [[GitHub Pages](https://notyusheng.github.io/Transcribe-Translate/)].
 
