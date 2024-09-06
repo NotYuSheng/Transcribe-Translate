@@ -5,7 +5,7 @@
 [![GitHub last commit](https://img.shields.io/github/last-commit/NotYuSheng/Transcribe-Translate?color=red)](#)
 
 > [!WARNING]  
-> This project is currently under development
+> Project is currently under development
 
 ## Documentation
 > [!WARNING]  
@@ -35,15 +35,17 @@ The following table outlines the recommended hardware requirements for each Whis
 > [!TIP]
 > For models running on GPU, using CUDA-enabled GPUs with sufficient VRAM is recommended to significantly improve performance. CPU-based inference may require additional RAM and processing time.
 
+> [!NOTE]
+> By default, `base`, `base.en`, & `large-v3` models are loaded. Models can be configured from the `backend/Dockerfile`
+
 ## Supported formats
 
 ### Import Options:
-- Audio: .mp3, .wav, .flac, .m4a, etc.
-- Video: .mp4, .mkv, .avi, .mov, etc.
+- Audio: `.mp3`, `.wav`, `.flac`, `.m4a`, etc.
+- Video: `.mp4`, `.mkv`, `.avi`, `.mov`, etc.
 
 ### Export Options: 
-- Users can export the results in .txt, .json, .srt, or .vtt formats.
-
+- Users can export the results in `.txt`, `.json`, `.srt`, or `.vtt` formats.
 
 ## Usage
 > [!NOTE]
