@@ -17,4 +17,3 @@ Contents:
    introduction
    host_requirements
    installation
-   project_features
