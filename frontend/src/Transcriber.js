@@ -142,18 +142,19 @@ const Transcriber = () => {
     };
 
     const formatTime = (time, forSubtitle = false) => {
-        const minutes = Math.floor(time / 60);
+        const hours = Math.floor(time / 3600);
+        const minutes = Math.floor((time % 3600) / 60);
         const seconds = (time % 60).toFixed(2);
         if (forSubtitle) {
-            return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(5, '0').replace('.', ',')}`;
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(5, '0').replace('.', ',')}`;
         }
-        return `${minutes}:${String(seconds).padStart(5, '0')}`;
+        return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(5, '0')}`;
     };
 
     return (
         <div className="container">
             <label htmlFor="file-upload" className="upload-label">Upload File</label>
-            <input id="file-upload" type="file" accept="audio,video" onChange={handleFileChange} className="file-input" />
+            <input id="file-upload" type="file" accept="audio/*,video/*" onChange={handleFileChange} className="file-input" />
 
             {mediaURL && (
                 <div className="media-preview">
@@ -201,9 +202,16 @@ const Transcriber = () => {
             )}
 
             {processingComplete && (
-                <div className="processing-time">
-                    <h3>Total Processing Time: {elapsedTime} seconds</h3>
-                </div>
+                <>
+                    <div className="processing-time">
+                        <h3>Total Processing Time: {elapsedTime} seconds</h3>
+                    </div>
+                    {detectedLanguage && (
+                        <div className="detected-language">
+                            <h3>Detected Language: {detectedLanguage.toUpperCase()}</h3>
+                        </div>
+                    )}
+                </>
             )}
 
             {processingComplete && transcription.length > 0 && (
