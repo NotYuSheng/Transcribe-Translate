@@ -1,0 +1,30 @@
+name: Deploy React App to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main  # Trigger on pushes to main branch
+
+jobs:
+  build-app:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build Docker image for React app
+        run: docker build -t my-react-app ./frontend  # Build the frontend Docker image
+
+      - name: Run build inside Docker container
+        run: docker run --rm my-react-app npm run build  # Run build command inside Docker container
+
+      - name: Copy build artifacts
+        run: docker cp $(docker create my-react-app):/app/build ./frontend/build  # Copy the build folder from the container
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages  # Deploy React app to `gh-pages` branch
+          publish_dir: ./frontend/build  # Directory with the React app build
