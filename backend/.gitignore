@@ -1,6 +1,3 @@
-# Ignore the whisper models directory
-whisper_models/
-
 # Ignore Python cache files
 __pycache__/
 *.pyc
