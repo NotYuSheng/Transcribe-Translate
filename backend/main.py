@@ -43,7 +43,7 @@ def get_available_models() -> list:
 def load_model(model_name: str):
     """Load the model dynamically from the specified directory."""
     try:
-        model_path = os.path.join(WHISPER_MODELS_DIR, model_name)
+        model_path = os.path.join(WHISPER_MODELS_DIR, model_name) + ".pt"
         if os.path.exists(model_path):
             model = whisper.load_model(model_name, download_root=WHISPER_MODELS_DIR).to(device)
             return model
