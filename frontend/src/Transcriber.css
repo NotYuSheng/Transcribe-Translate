@@ -171,3 +171,9 @@ button:focus {
         margin: 5px 0;
     }
 }
+
+.detected-language {
+    font-size: 18px;
+    color: #6c757d;
+    margin-bottom: 20px;
+}
