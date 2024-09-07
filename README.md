@@ -4,8 +4,16 @@
 [![Sphinx](https://img.shields.io/badge/Sphinx-000?logo=sphinx&logoColor=fff)](https://notyusheng.github.io/Transcribe-Translate/index.html)
 [![GitHub last commit](https://img.shields.io/github/last-commit/NotYuSheng/Transcribe-Translate?color=red)](#)
 
-> [!WARNING]  
-> Project is currently under development
+<div align="center">
+  <img src="sample-files/Partial-DEMO.png" alt="Partial demo img" style="width: 50%; max-width: 50px; height: auto;" />
+</div>
+
+<details>
+  <summary>Full Page Sample</summary>
+  <div align="center">
+    <img src="sample-files/Full-DEMO.png" alt="Full demo img" style="width: 50%; max-width: 50px; height: auto;" />
+  </div>
+</details>
 
 ## Documentation
 > [!WARNING]  
