@@ -5,13 +5,13 @@
 [![GitHub last commit](https://img.shields.io/github/last-commit/NotYuSheng/Transcribe-Translate?color=red)](#)
 
 <div align="center">
-  <img src="sample-files/Partial-DEMO.png" alt="Partial demo img" style="width: 50%; max-width: 50px; height: auto;" />
+  <img src="sample-files/Shrunk-DEMO.png" alt="Partial demo img" style="width: 75%; max-width: 50px; height: auto;" />
 </div>
 
 <details>
   <summary>Full Page Sample</summary>
   <div align="center">
-    <img src="sample-files/Full-DEMO.png" alt="Full demo img" style="width: 50%; max-width: 50px; height: auto;" />
+    <img src="sample-files/Full-DEMO.png" alt="Full demo img" style="width: 75%; max-width: 50px; height: auto;" />
   </div>
 </details>
 
