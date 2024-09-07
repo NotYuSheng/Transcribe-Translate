@@ -10,6 +10,7 @@
 
 <details>
   <summary>Full Page Sample</summary>
+  <br>
   <div align="center">
     <img src="sample-files/Full-DEMO.png" alt="Full demo img" style="width: 75%; max-width: 50px; height: auto;" />
   </div>
