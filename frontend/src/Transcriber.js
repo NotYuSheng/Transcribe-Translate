@@ -5,10 +5,9 @@ import './Transcriber.css'; // Import the CSS file
 const Transcriber = () => {
     const [file, setFile] = useState(null);
     const [mediaURL, setMediaURL] = useState(null);
-    const [transcription] = useState([]);
-    const [translation] = useState([]);
     const [models] = useState(["base", "large", "tiny"]);  // Static list of models
     const [selectedModel, setSelectedModel] = useState("base");
+    const [inputLanguage, setInputLanguage] = useState("");  // Bring back input language field
     const [exportFormat, setExportFormat] = useState("txt");
 
     const handleFileChange = (e) => {
@@ -81,6 +80,16 @@ const Transcriber = () => {
                             </option>
                         ))}
                     </select>
+                </div>
+
+                <div className="input-group">
+                    <label>Input Language: </label>
+                    <input
+                        type="text"
+                        placeholder="Optional (e.g., 'en')"
+                        value={inputLanguage}
+                        onChange={(e) => setInputLanguage(e.target.value)}
+                    />
                 </div>
             </div>
 
