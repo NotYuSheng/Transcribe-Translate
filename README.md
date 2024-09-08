@@ -1,9 +1,12 @@
 # Transcribe-Translate
 
-[![Github Pages](https://img.shields.io/badge/github%20pages-121013?style=for-the-badge&logo=github&logoColor=white)](https://notyusheng.github.io/Transcribe-Translate/)
-[![Sphinx](https://img.shields.io/badge/Sphinx-000?logo=sphinx&logoColor=fff)](https://notyusheng.github.io/Transcribe-Translate/index.html)
-[![GitHub last commit](https://img.shields.io/github/last-commit/NotYuSheng/Transcribe-Translate?color=red)](#)
+<div align="center">
 
+  [![GitHub last commit](https://img.shields.io/github/last-commit/NotYuSheng/Transcribe-Translate?color=red)](#)
+  [![Sphinx Documentation](https://img.shields.io/badge/Sphinx-Documentation-informational)](https://notyusheng.github.io/Transcribe-Translate/)
+  [![Render Deployment](https://img.shields.io/badge/Render-Frontend%20Deployment-yellow)](https://transcribe-translate-frontend.onrender.com/)
+
+</div>
 <div align="center">
   <img src="sample-files/Shrunk-DEMO.png" alt="Partial demo img" style="width: 75%; max-width: 50px; height: auto;" />
 </div>
