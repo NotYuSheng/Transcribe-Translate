@@ -156,6 +156,16 @@ button:focus {
     border: 1px solid #ccc;
 }
 
+.sample-label {
+    font-size: 20px;
+    font-weight: bold;
+    color: #dc3545;
+    background-color: #ffe6e6;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
 @media (max-width: 600px) {
     .controls {
         flex-direction: column;
