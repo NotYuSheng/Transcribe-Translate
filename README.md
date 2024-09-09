@@ -47,8 +47,8 @@ The following table outlines the recommended hardware requirements for each Whis
 > [!TIP]
 > For models running on GPU, using CUDA-enabled GPUs with sufficient VRAM is recommended to significantly improve performance. CPU-based inference may require additional RAM and processing time.
 
-> [!NOTE]
-> By default, `base`, `base.en`, & `large-v3` models are loaded. Models can be configured from the `backend/Dockerfile`
+> [!WARNING]
+> By default, `base`, `base.en`, & `large-v3` models are loaded. Models can be configured from the `backend/Dockerfile`. However, `base` model must not be removed as it is statically configured to be the default model.
 
 ## Supported formats
 
@@ -88,3 +88,7 @@ API calls to Whisper server can be made to (refer to <host-ip>:8000/docs for mor
 ```
 <host-ip>:8000
 ```
+
+## Additional Notes
+> [!CAUTION]
+> Project is intended to be use in a local network by trusted user, therefore there is **no rate limit configured and the project is vulnerable to request floods**. Consider switching to `slowapi` if this is unacceptable.
