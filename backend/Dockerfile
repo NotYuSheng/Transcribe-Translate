@@ -1,12 +1,10 @@
 FROM python:3.9-slim
 
 # Install necessary packages
-RUN apt-get update && apt-get install -y ffmpeg
+RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg
 
-# Set working directory in the container
 WORKDIR /app
 
-# Copy requirements.txt and install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -18,8 +16,4 @@ RUN python -c "import whisper; whisper.load_model('large-v3', download_root='/ap
 # Copy the main application code
 COPY main.py /app/
 
-# Expose port
-EXPOSE 8000
-
-# Use Gunicorn with Uvicorn workers
-CMD ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "main:app", "--bind", "0.0.0.0:8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
