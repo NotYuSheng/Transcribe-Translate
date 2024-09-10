@@ -94,7 +94,7 @@ async def transcribe(
             {"text": segment['text'], "start": segment['start'], "end": segment['end']}
             for segment in segments
         ]
-         
+        
         return {
             "detected_language": result["language"],
             "transcription": transcription_with_timestamps
@@ -125,7 +125,7 @@ async def translate(
         audio_data = load_audio_from_memory(audio_file)
 
         # If source_language is None or empty, don't pass the language, let Whisper auto-detect
-        transcribe_options = {"task": "translate", "language": source_language} if source_language else {"task": ">
+        transcribe_options = {"task": "translate", "language": source_language} if source_language else {"task": "translate"}
 
         # Perform translation
         result = model.transcribe(audio_data, **transcribe_options)
@@ -135,7 +135,7 @@ async def translate(
             {"text": segment['text'], "start": segment['start'], "end": segment['end']}
             for segment in segments
         ]
-         
+        
         return {
             "detected_language": result["language"],
             "translation": translation_with_timestamps
