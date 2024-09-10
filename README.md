@@ -92,3 +92,6 @@ API calls to Whisper server can be made to (refer to <host-ip>:8000/docs for mor
 ## Additional Notes
 > [!CAUTION]
 > Project is intended to be use in a local network by trusted user, therefore there is **no rate limit configured and the project is vulnerable to request floods**. Consider switching to `slowapi` if this is unacceptable.
+
+> [!TIP]
+> For transcribing English inputs, `.en` version of the models are recommended
