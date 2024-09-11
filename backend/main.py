@@ -143,3 +143,34 @@ async def translate(
     except Exception as e:
         print(f"Error occurred: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
+@app.post("/add_subtitles/")
+async def add_subtitles(video: UploadFile = File(...), subtitles: UploadFile = File(...)):
+    try:
+        # Save video and subtitles to temporary files
+        video_path = f"/tmp/{video.filename}"
+        subtitle_path = f"/tmp/{subtitles.filename}"
+        output_path = f"/tmp/output_{video.filename}"
+
+        with open(video_path, "wb") as f:
+            shutil.copyfileobj(video.file, f)
+
+        with open(subtitle_path, "wb") as f:
+            shutil.copyfileobj(subtitles.file, f)
+
+        # Add subtitles to the video using ffmpeg
+        ffmpeg.input(video_path).output(output_path, vf=f"subtitles={subtitle_path}").run()
+
+        # Read the output video
+        with open(output_path, "rb") as f:
+            video_bytes = f.read()
+
+        # Clean up temp files
+        os.remove(video_path)
+        os.remove(subtitle_path)
+        os.remove(output_path)
+
+        return {"filename": f"output_{video.filename}", "content": video_bytes}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
