@@ -6,44 +6,13 @@ import './Transcriber.css'; // Import the CSS file
 const Transcriber = () => {
     const [file, setFile] = useState(null);
     const [mediaURL, setMediaURL] = useState(null);
+    const [subtitledMediaURL, setSubtitledMediaURL] = useState(null);
     const [transcription, setTranscription] = useState([]);
-    const [translation, setTranslation] = useState([]);
-    const [inputLanguage, setInputLanguage] = useState("");
-    const [targetLanguage, setTargetLanguage] = useState("en");
-    const [models, setModels] = useState([]);  // Dynamic list of models
-    const [selectedModel, setSelectedModel] = useState("");
-    const [detectedLanguage, setDetectedLanguage] = useState("");
     const [loading, setLoading] = useState(false);
-    const [exportFormat, setExportFormat] = useState("txt");
-    const [startTime, setStartTime] = useState(null);
-    const [elapsedTime, setElapsedTime] = useState(0);
     const [processingComplete, setProcessingComplete] = useState(false);
-
-    // Fetch available models on component mount
-    useEffect(() => {
-        const fetchModels = async () => {
-            try {
-                const response = await axios.get("http://localhost:8000/models/");
-                setModels(response.data.models);
-                setSelectedModel(response.data.models[0] || "");  // Set default model
-            } catch (error) {
-                console.error("Error fetching models:", error);
-            }
-        };
-        fetchModels();
-    }, []);
-
-    useEffect(() => {
-        let timer;
-        if (loading && startTime) {
-            timer = setInterval(() => {
-                setElapsedTime(Math.floor((Date.now() - startTime) / 1000));
-            }, 1000);
-        } else {
-            clearInterval(timer);
-        }
-        return () => clearInterval(timer);
-    }, [loading, startTime]);
+    const [exportFormat, setExportFormat] = useState("srt"); // Default subtitle format
+    const [videoWithSubtitles, setVideoWithSubtitles] = useState(null); // Hold video with subtitles
+    const [detectedLanguage, setDetectedLanguage] = useState("");
 
     const handleFileChange = (e) => {
         const uploadedFile = e.target.files[0];
@@ -61,15 +30,13 @@ const Transcriber = () => {
         }
         setLoading(true);
         setProcessingComplete(false);
-        setStartTime(Date.now());
         setTranscription([]);
-        setTranslation([]);
         setDetectedLanguage("");
 
         const formData = new FormData();
         formData.append("file", file);
-        formData.append("model_name", selectedModel);
-        formData.append("language", inputLanguage);
+        formData.append("model_name", "base");
+        formData.append("language", "");
 
         try {
             const response = await axios.post("http://localhost:8000/transcribe/", formData);
@@ -81,64 +48,55 @@ const Transcriber = () => {
         } finally {
             setLoading(false);
             setProcessingComplete(true);
-            setStartTime(null);
         }
     };
 
-    const handleTranslate = async () => {
-        if (!file) {
-            alert("Please upload a file before translating.");
+    const handleAddSubtitles = async () => {
+        if (!file || transcription.length === 0) {
+            alert("Please upload a video and generate transcription before adding subtitles.");
             return;
         }
-        setLoading(true);
-        setProcessingComplete(false);
-        setStartTime(Date.now());
-        setTranscription([]);
-        setTranslation([]);
-        setDetectedLanguage("");
 
+        setLoading(true);
         const formData = new FormData();
-        formData.append("file", file);
-        formData.append("model_name", selectedModel);
-        formData.append("source_language", inputLanguage);
-        formData.append("target_language", targetLanguage);
+
+        // Convert transcription to subtitle format (SRT in this case)
+        const srtContent = transcription.map((seg, index) =>
+            `${index + 1}\n${formatTime(seg.start, true)} --> ${formatTime(seg.end, true)}\n${seg.text}\n`
+        ).join("\n");
+
+        const subtitleBlob = new Blob([srtContent], { type: "text/plain;charset=utf-8" });
+        const subtitleFile = new File([subtitleBlob], "subtitles.srt");
+
+        formData.append("video", file);
+        formData.append("subtitles", subtitleFile);
 
         try {
-            const response = await axios.post("http://localhost:8000/translate/", formData);
-            setTranslation(response.data.translation);
-            setDetectedLanguage(response.data.detected_language);
+            const response = await axios.post("http://localhost:8000/add_subtitles/", formData, {
+                responseType: "blob",
+            });
+
+            // Create a URL for the video with subtitles
+            const videoBlob = new Blob([response.data], { type: "video/mp4" });
+            const videoURL = URL.createObjectURL(videoBlob);
+
+            setSubtitledMediaURL(videoURL); // Set the new video URL with subtitles
+            setVideoWithSubtitles(videoBlob); // Save the video blob for downloading
+
         } catch (error) {
-            console.error("Error during translation:", error);
-            alert("An error occurred during translation.");
+            console.error("Error adding subtitles:", error);
+            alert("An error occurred while adding subtitles.");
         } finally {
             setLoading(false);
-            setProcessingComplete(true);
-            setStartTime(null);
         }
     };
 
-    const exportFile = (content, format) => {
-        let blob;
-        const filename = `exported_file.${format}`;
-
-        if (format === 'txt') {
-            const textContent = content.map(seg => `Time [${formatTime(seg.start)} - ${formatTime(seg.end)}]: ${seg.text}`).join("\n");
-            blob = new Blob([textContent], { type: "text/plain;charset=utf-8" });
-        } else if (format === 'json') {
-            blob = new Blob([JSON.stringify(content, null, 2)], { type: "application/json;charset=utf-8" });
-        } else if (format === 'srt') {
-            const srtContent = content.map((seg, index) => 
-                `${index + 1}\n${formatTime(seg.start, true)} --> ${formatTime(seg.end, true)}\n${seg.text}\n`
-            ).join("\n");
-            blob = new Blob([srtContent], { type: "text/plain;charset=utf-8" });
-        } else if (format === 'vtt') {
-            const vttContent = "WEBVTT\n\n" + content.map(seg => 
-                `${formatTime(seg.start, true)} --> ${formatTime(seg.end, true)}\n${seg.text}\n`
-            ).join("\n");
-            blob = new Blob([vttContent], { type: "text/vtt;charset=utf-8" });
+    const handleDownloadVideo = () => {
+        if (videoWithSubtitles) {
+            FileSaver.saveAs(videoWithSubtitles, "video_with_subtitles.mp4");
+        } else {
+            alert("No video with subtitles available for download.");
         }
-
-        FileSaver.saveAs(blob, filename);
     };
 
     const formatTime = (time, forSubtitle = false) => {
@@ -160,58 +118,23 @@ const Transcriber = () => {
                 <div className="media-preview">
                     <h3>Preview</h3>
                     {file && file.type.startsWith("video") ? (
-                        <video controls src={mediaURL} />
+                        <video controls src={subtitledMediaURL || mediaURL} /> // Replace video source when subtitled video is available
                     ) : (
                         <audio controls src={mediaURL} />
                     )}
                 </div>
             )}
 
-            <div className="controls">
-                <div className="select-group">
-                    <label>Model: </label>
-                    <select value={selectedModel} onChange={(e) => setSelectedModel(e.target.value)}>
-                        {models.map((model) => (
-                            <option key={model} value={model}>
-                                {model}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className="input-group">
-                    <label>Input Language: </label>
-                    <input
-                        type="text"
-                        placeholder="Optional (e.g., 'en')"
-                        value={inputLanguage}
-                        onChange={(e) => setInputLanguage(e.target.value)}
-                    />
-                </div>
-            </div>
-
             <div className="action-buttons">
                 <button onClick={handleTranscribe} disabled={loading}>Transcribe</button>
-                <button onClick={handleTranslate} disabled={loading}>Translate</button>
+                <button onClick={handleAddSubtitles} disabled={loading || !processingComplete}>Add Subtitles</button>
+                <button onClick={handleDownloadVideo} disabled={!videoWithSubtitles}>Download Video with Subtitles</button>
             </div>
 
             {loading && (
                 <div className="loading">
-                    Processing... Time elapsed: {elapsedTime} seconds
+                    Processing...
                 </div>
-            )}
-
-            {processingComplete && (
-                <>
-                    <div className="processing-time">
-                        <h3>Total Processing Time: {elapsedTime} seconds</h3>
-                    </div>
-                    {detectedLanguage && (
-                        <div className="detected-language">
-                            <h3>Detected Language: {detectedLanguage.toUpperCase()}</h3>
-                        </div>
-                    )}
-                </>
             )}
 
             {processingComplete && transcription.length > 0 && (
@@ -235,43 +158,6 @@ const Transcriber = () => {
                             ))}
                         </tbody>
                     </table>
-                </div>
-            )}
-
-            {processingComplete && translation.length > 0 && (
-                <div className="result">
-                    <h3>Translation:</h3>
-                    <table className="result-table">
-                        <thead>
-                            <tr>
-                                <th>Start Time</th>
-                                <th>End Time</th>
-                                <th>Text</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {translation.map((segment, index) => (
-                                <tr key={index}>
-                                    <td>{formatTime(segment.start)}</td>
-                                    <td>{formatTime(segment.end)}</td>
-                                    <td>{segment.text}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
-
-            {processingComplete && (transcription.length > 0 || translation.length > 0) && (
-                <div className="export">
-                    <label>Export as: </label>
-                    <select value={exportFormat} onChange={(e) => setExportFormat(e.target.value)}>
-                        <option value="txt">TXT</option>
-                        <option value="json">JSON</option>
-                        <option value="srt">SRT</option>
-                        <option value="vtt">VTT</option>
-                    </select>
-                    <button onClick={() => exportFile(transcription.length > 0 ? transcription : translation, exportFormat)}>Export</button>
                 </div>
             )}
         </div>
