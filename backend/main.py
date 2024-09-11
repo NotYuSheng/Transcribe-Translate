@@ -2,6 +2,7 @@ from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import whisper
 import torch
+import shutil
 import os
 import ffmpeg
 import numpy as np
