@@ -69,17 +69,23 @@ git clone https://github.com/NotYuSheng/Transcribe-Translate.git
 cd Transcribe-Translate
 ```
 
-2.  Build the Docker images:
+2. Configure the `frontend/.env` file
+```
+# IMPORTANT: Replace "localhost" with the server's IP address where the backend is running
+REACT_APP_BACKEND_URL=http://localhost:8000
+```  
+
+3.  Build the Docker images:
 ```
 docker-compose build
 ```
 
-3.  Run images
+4.  Run images
 ```
 docker-compose up -d
 ```
 
-4.  Access webpage from host
+5.  Access webpage from host
 ```
 <host-ip>:3000
 ```
