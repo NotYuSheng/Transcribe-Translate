@@ -19,11 +19,24 @@ const Transcriber = () => {
     const [elapsedTime, setElapsedTime] = useState(0);
     const [processingComplete, setProcessingComplete] = useState(false);
 
+    let backendUrl;
+
+    try {
+        backendUrl = process.env.REACT_APP_BACKEND_URL;
+        if (!backendUrl) {
+            throw new Error("REACT_APP_BACKEND_URL is not set");
+        }
+    } catch (error) {
+        console.error(error.message);
+        // You can also provide a fallback or handle the error as needed
+        // Example fallback: backendUrl = "http://localhost:8000";
+    }
+
     // Fetch available models on component mount
     useEffect(() => {
         const fetchModels = async () => {
             try {
-                const response = await axios.get("http://localhost:8000/models/");
+                const response = await axios.get(`${backendUrl}/models/`);
                 setModels(response.data.models);
                 setSelectedModel(response.data.models[0] || "");  // Set default model
             } catch (error) {
@@ -72,7 +85,7 @@ const Transcriber = () => {
         formData.append("language", inputLanguage);
 
         try {
-            const response = await axios.post("http://localhost:8000/transcribe/", formData);
+            const response = await axios.post(`${backendUrl}/transcribe/`, formData);
             setTranscription(response.data.transcription);
             setDetectedLanguage(response.data.detected_language);
         } catch (error) {
@@ -104,7 +117,7 @@ const Transcriber = () => {
         formData.append("target_language", targetLanguage);
 
         try {
-            const response = await axios.post("http://localhost:8000/translate/", formData);
+            const response = await axios.post(`${backendUrl}/translate/`, formData);
             setTranslation(response.data.translation);
             setDetectedLanguage(response.data.detected_language);
         } catch (error) {
