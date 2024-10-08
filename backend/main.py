@@ -56,12 +56,12 @@ def load_audio_from_memory(audio_bytes: BytesIO) -> np.ndarray:
         print(f"Error decoding audio: {e}")
         raise HTTPException(status_code=500, detail=f"Error decoding audio: {e}")
 
-@app.get("/models/")
+@app.get("/api/models/")
 async def list_models():
     """List the available models in the whisper_models directory."""
     return {"models": get_available_models()}
 
-@app.post("/transcribe/")
+@app.post("/api/transcribe/")
 async def transcribe(
     file: UploadFile = File(...),
     whisper_model_name: str = Form("base"),
@@ -103,7 +103,7 @@ async def transcribe(
         print(f"Error occurred: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-@app.post("/translate/")
+@app.post("/api/translate/")
 async def translate(
     file: UploadFile = File(...),
     whisper_model_name: str = Form("base"),
