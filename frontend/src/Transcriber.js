@@ -19,18 +19,7 @@ const Transcriber = () => {
     const [elapsedTime, setElapsedTime] = useState(0);
     const [processingComplete, setProcessingComplete] = useState(false);
 
-    let backendUrl;
-
-    try {
-        backendUrl = process.env.REACT_APP_BACKEND_URL;
-        if (!backendUrl) {
-            throw new Error("REACT_APP_BACKEND_URL is not set");
-        }
-    } catch (error) {
-        console.error(error.message);
-        // You can also provide a fallback or handle the error as needed
-        // Example fallback: backendUrl = "http://localhost:8000";
-    }
+    const backendUrl = "/api";
 
     // Fetch available models on component mount
     useEffect(() => {
