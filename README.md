@@ -28,12 +28,6 @@
   </div>
 </details>
 
-## Documentation
-> [!WARNING]  
-> Documentation is currently under development
-
-You can access the project documentation at [[GitHub Pages](https://notyusheng.github.io/Transcribe-Translate/)].
-
 ## Host requirements
 - **Docker**: [[Installation Guide](https://docs.docker.com/engine/install/)]
 - **Docker Compose**: [[Installation Guide](https://docs.docker.com/compose/install/)]
