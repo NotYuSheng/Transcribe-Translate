@@ -5,10 +5,10 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
     volumes:
       - whisper_models:/app/whisper_models
+    networks:
+      - tt-network
 
   frontend:
     container_name: transcribe-translate-frontend
@@ -16,8 +16,26 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    networks:
+      - tt-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: transcribe-translate-nginx
+    restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "8000:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - tt-network
 
 volumes:
   whisper_models:
+
+networks:
+  tt-network:
+    driver: bridge
