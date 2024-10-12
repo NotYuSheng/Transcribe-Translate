@@ -38,7 +38,7 @@ You can access the project documentation at [[GitHub Pages](https://notyusheng.g
 - **Docker**: [[Installation Guide](https://docs.docker.com/engine/install/)]
 - **Docker Compose**: [[Installation Guide](https://docs.docker.com/compose/install/)]
 - Compatibile with Linux and Windows Host
-- Ensure port 3000 and 8000 are not already in use
+- Ensure port 8000 is not already in use
 - Project can be ran on either CPU or GPU
 
 ## Model requirements
@@ -78,28 +78,17 @@ git clone https://github.com/NotYuSheng/Transcribe-Translate.git
 cd Transcribe-Translate
 ```
 
-2. Configure the `frontend/.env` file
-```
-# IMPORTANT: Replace "localhost" with the server's IP address where the backend is running
-REACT_APP_BACKEND_URL=http://localhost:8000
-```  
-
-3.  Build the Docker images:
+2.  Build the Docker images:
 ```
 docker-compose build
 ```
 
-4.  Run images
+3.  Run images
 ```
 docker-compose up -d
 ```
 
-5.  Access webpage from host
-```
-<host-ip>:3000
-```
-
-API calls to Whisper server can be made to (refer to <host-ip>:8000/docs for more info)
+4.  Access webpage from host
 ```
 <host-ip>:8000
 ```
