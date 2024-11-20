@@ -16,4 +16,4 @@ RUN python -c "import whisper; whisper.load_model('large-v3', download_root='/ap
 # Copy the main application code
 COPY main.py /app/
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--timeout-keep-alive", "600", "--workers", "4"]
