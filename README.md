@@ -87,6 +87,31 @@ docker-compose up -d
 <host-ip>:8000
 ```
 
+## Configuration Details
+### User Concurrency
+The application backend is configured to handle **4 concurrent** users using the `--workers` option in the `backend/Dockerfile`.
+```
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--timeout-keep-alive", "600", "--workers", "4"]
+```
+
+### Large File Uploads
+The app supports file uploads of up to **5GB**. This is configured by setting `client_max_body_size` in the `nginx/nginx.conf`.
+```
+client_max_body_size 5G;
+```
+
+### Timeout Settings
+To accommodate large uploads and longer processing times by providing **10 mins** keep alive setting in `backend/Dockerfile` with the following timeout settings in `nginx/nginx.conf`.
+```
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--timeout-keep-alive", "600", "--workers", "4"]
+```
+```
+proxy_read_timeout 600s;
+proxy_connect_timeout 600s;
+proxy_send_timeout 600s;
+send_timeout 600s;
+```
+
 ## Additional Notes
 > [!CAUTION]
 > Project is intended to be use in a local network by trusted user, therefore there is **no rate limit configured and the project is vulnerable to request floods**. Consider switching to `slowapi` if this is unacceptable.
