@@ -27,13 +27,13 @@ services:
       - tt-network
 
   nginx:
-    image: nginx:alpine
     container_name: transcribe-translate-nginx
     restart: unless-stopped
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
     ports:
       - "8000:80"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - frontend
       - backend
