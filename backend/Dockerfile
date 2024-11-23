@@ -12,7 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN python -c "import whisper; whisper.load_model('base', download_root='/app/whisper_models')"
 RUN python -c "import whisper; whisper.load_model('base.en', download_root='/app/whisper_models')"
 RUN python -c "import whisper; whisper.load_model('medium.en', download_root='/app/whisper_models')"
-RUN python -c "import whisper; whisper.load_model('large-v3.en', download_root='/app/whisper_models')"
+RUN python -c "import whisper; whisper.load_model('large-v3', download_root='/app/whisper_models')"
 
 # Copy the main application code
 COPY main.py /app/
