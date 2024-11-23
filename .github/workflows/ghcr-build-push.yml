@@ -33,7 +33,7 @@ jobs:
       - name: Build and Push Backend Non-CUDA Image
         run: |
           lower_owner=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          docker build -f docker-compose.cpu.yml -t ghcr.io/$lower_owner/transcribe-translate-backend:cpu ./backend
+          docker build -t ghcr.io/$lower_owner/transcribe-translate-backend:cpu ./backend --build-arg USE_CUDA=false
           docker push ghcr.io/$lower_owner/transcribe-translate-backend:cpu
 
       # Step 4: Build and push frontend image (same for both versions)
