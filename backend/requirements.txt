@@ -1,5 +1,5 @@
-fastapi
-uvicorn
-openai-whisper
-python-multipart
-ffmpeg-python
+fastapi==0.115.11
+uvicorn==0.34.0
+openai-whisper==20240930
+python-multipart==0.0.20
+ffmpeg-python==0.2.0
