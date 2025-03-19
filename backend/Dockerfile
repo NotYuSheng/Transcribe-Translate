@@ -8,7 +8,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Download the base Whisper model
+# Download Whisper models
 RUN python -c "import whisper; whisper.load_model('base', download_root='/app/whisper_models')"
 RUN python -c "import whisper; whisper.load_model('base.en', download_root='/app/whisper_models')"
 RUN python -c "import whisper; whisper.load_model('medium.en', download_root='/app/whisper_models')"
